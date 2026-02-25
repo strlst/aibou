@@ -191,7 +191,7 @@ async function send() {
                 live.finish();
             }
             //addThinkEntry(thinkEntries, 'Reply delivered.', 'done');
-            addThinkEntry(thinkEntries, '返信が配信されました.', 'done');
+            addThinkEntry(thinkEntries, '返信が配信されました。', 'done');
         }
     } catch (e) {
         resolveReply();

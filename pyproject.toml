@@ -1,7 +1,7 @@
 [project]
 name = "aibou"
 version = "0.1.0"
-description = "Add your description here"
+description = "Aibou (相棒) is a simple and elegant @groq powered Flask chat interface"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [

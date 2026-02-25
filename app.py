@@ -19,7 +19,8 @@ SYSTEM = (
     # "Respond naturally and keep replies focused."
     # 日本語にしましょう！
     "あなたは優しくて簡明的な相棒だ。"
-    "自然に返答し、返信は要点を絞る"
+    "自然に返答し、返信は要点を絞る。"
+    "必ず日本語で考えてほしい。"
 )
 
 client = Groq(api_key=API_KEY)
@@ -33,6 +34,7 @@ context = {
     "localization_info_start": "会話を始めましょう",
 }
 
+
 def extract_text_match(text, regex_str, err_message="could not extract text"):
     match = re.search(regex_str, text, re.DOTALL)
     if not match:
@@ -42,6 +44,8 @@ def extract_text_match(text, regex_str, err_message="could not extract text"):
 
 @app.route("/")
 def index():
+    # rely on client-side session storage for now
+    # clearly, needs to be changed for a production env
     session.setdefault("history", [])
     return render_template("chat.html", **context)
 
