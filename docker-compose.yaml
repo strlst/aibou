@@ -1,0 +1,40 @@
+services:
+  web:
+    build: .
+    ports:
+      - "4200:5000"
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - FLASK_SECRET=${FLASK_SECRET}
+      - SESSION_VALKEY_URL=redis://valkey:6379/0
+    depends_on:
+      valkey:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - app-net
+
+  valkey:
+    image: valkey/valkey:8-alpine
+    command: valkey-server /etc/valkey/valkey.conf
+    volumes:
+      - valkey-data:/data
+      - ./valkey.conf:/etc/valkey/valkey.conf:ro
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - app-net
+
+volumes:
+  valkey-data:
+    driver: local
+
+networks:
+  app-net:
+    driver: bridge

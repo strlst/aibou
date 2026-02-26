@@ -8,6 +8,7 @@ import os
 import re
 import time
 from flask import Flask, request, jsonify, session, render_template
+from flask_session import Session
 from groq import Groq
 
 # configuration
@@ -25,8 +26,21 @@ SYSTEM = (
 
 client = Groq(api_key=API_KEY)
 
+# configure app
 app = Flask(__name__)
-app.secret_key = os.environ.get("FLASK_SECRET") or os.urandom(24)
+app.config.update(
+    SECRET_KEY=os.environ.get("FLASK_SECRET") or os.urandom(24),
+    SESSION_TYPE="redis",
+    SESSION_PERMANENT=False,
+    SESSION_USE_SIGNER=True,
+    SESSION_KEY_PREFIX="chat:",
+    SESSION_REDIS=__import__("redis").from_url(
+        os.environ.get("SESSION_VALKEY_URL", "redis://localhost:6379/0")
+    ),
+)
+# init session
+Session(app)
+
 context = {
     "chat_model": MODEL,
     "chat_provider": PROVIDER,
