@@ -1,11 +1,19 @@
 const messagesEl = document.getElementById('messages');
 const inputEl = document.getElementById('input');
 const sendBtn = document.getElementById('send');
+const micBtn = document.getElementById('mic');
 const emptyEl = document.getElementById('empty');
 const thinkLog = document.getElementById('think-log');
 const thinkEmpty = document.getElementById('think-empty');
 
 let turnCounter = 0;
+
+// audio state
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
+// track the currently playing tts audio so we can stop it
+let currentAudio = null;
 
 // chat helpers
 function appendMsg(role, text) {
@@ -139,6 +147,115 @@ async function runThinkingAnimation(container, doneSignal) {
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+// stop any tts audio that is currently playing
+function stopCurrentAudio() {
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.src = '';
+        currentAudio = null;
+    }
+}
+
+// play tts audio for the given text by fetching /speak
+async function speakText(text) {
+    // stop whatever is playing before starting a new utterance
+    stopCurrentAudio();
+
+    try {
+        const res = await fetch('/speak', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text })
+        });
+
+        if (!res.ok) return;
+
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        currentAudio = audio;
+        audio.onended = () => {
+            URL.revokeObjectURL(url);
+            currentAudio = null;
+        };
+        audio.play();
+    } catch (e) {
+        console.warn('TTS playback failed:', e);
+    }
+}
+
+// mic recording: toggle on/off, send webm blob to /transcribe, fill input
+async function toggleMic() {
+    // pressing mic while audio is playing counts as an interrupt, stop the voice
+    stopCurrentAudio();
+
+    if (isRecording) {
+        // stop recording, the onstop handler will do the rest
+        mediaRecorder.stop();
+        return;
+    }
+
+    let stream;
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (e) {
+        appendMsg('ai', '! マイクへのアクセスが拒否されました。');
+        return;
+    }
+
+    audioChunks = [];
+    // prefer webm/opus; fall back to whatever the browser supports
+    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+        ? 'audio/webm;codecs=opus'
+        : '';
+    mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
+
+    mediaRecorder.ondataavailable = e => {
+        if (e.data.size > 0) audioChunks.push(e.data);
+    };
+
+    mediaRecorder.onstop = async () => {
+        // release the mic
+        stream.getTracks().forEach(t => t.stop());
+
+        setMicState(false);
+        micBtn.disabled = true;
+        micBtn.title = '文字起こし中。。。';
+
+        const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+        const form = new FormData();
+        form.append('audio', blob, 'recording.webm');
+
+        try {
+            const res = await fetch('/transcribe', { method: 'POST', body: form });
+            const data = await res.json();
+            if (data.text && data.text.trim()) {
+                // place transcribed text into the input field, then send
+                inputEl.value = data.text.trim();
+                inputEl.style.height = 'auto';
+                inputEl.style.height = Math.min(inputEl.scrollHeight, 140) + 'px';
+                send();
+            } else {
+                appendMsg('ai', '! 音声を認識できませんでした。');
+            }
+        } catch (e) {
+            appendMsg('ai', '! 文字起こしに失敗しました。');
+        }
+
+        micBtn.disabled = false;
+        micBtn.title = '録音';
+    };
+
+    mediaRecorder.start();
+    setMicState(true);
+}
+
+function setMicState(recording) {
+    isRecording = recording;
+    micBtn.classList.toggle('recording', recording);
+    micBtn.title = recording ? '録音を停止' : '録音';
+}
+
 // the flow for actual message sending, the heart of chat
 async function send() {
     const text = inputEl.value.trim();
@@ -181,6 +298,8 @@ async function send() {
             addThinkEntry(thinkEntries, 'APIからエラーが来ました.', 'info');
         } else {
             appendMsg('ai', data.reply);
+            // speak the ai reply aloud via edge-tts
+            if (data.reply) speakText(data.reply);
             // if the backend eventually returns thinking tokens, show them here
             if (data.thinking) {
                 const live = addLiveThinkEntry(thinkEntries);
@@ -208,6 +327,7 @@ async function send() {
 
 // finally add appropriate listeners to elements
 sendBtn.addEventListener('click', send);
+micBtn.addEventListener('click', toggleMic);
 inputEl.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
 });
