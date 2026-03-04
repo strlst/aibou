@@ -6,9 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>相棒 · Aibou</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&family=Noto+Sans+JP:wght@300;400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&family=Noto+Sans+JP:wght@300;400&display=swap"
+        rel="stylesheet">
     <style>
-        *, *::before, *::after {
+        *,
+        *::before,
+        *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
@@ -16,39 +20,40 @@
 
         :root {
             /* near-pure black base */
-            --bg:          #06060a;
-            --bg2:         #0a0a10;
-            --surface:     rgba(255,255,255,0.035);
-            --surface-hi:  rgba(255,255,255,0.06);
-            --border:      rgba(255,255,255,0.07);
-            --border-hi:   rgba(255,255,255,0.12);
+            --bg: #06060a;
+            --bg2: #0a0a10;
+            --surface: rgba(255, 255, 255, 0.035);
+            --surface-hi: rgba(255, 255, 255, 0.06);
+            --border: rgba(255, 255, 255, 0.07);
+            --border-hi: rgba(255, 255, 255, 0.12);
 
             /* blue accent family */
-            --blue:        #3d8ef8;
-            --blue-dim:    rgba(61,142,248,0.15);
+            --blue: #3d8ef8;
+            --blue-dim: rgba(61, 142, 248, 0.15);
 
             /* text */
-            --text:        #e8e8f0;
-            --text-muted:  #8e8ea8;
-            --text-dim:    #68687a;
+            --text: #e8e8f0;
+            --text-muted: #8e8ea8;
+            --text-dim: #68687a;
 
             /* bubbles */
-            --user-bg:     rgba(61,142,248,0.09);
-            --user-border: rgba(61,142,248,0.2);
-            --ai-bg:       rgba(255,255,255,0.028);
-            --ai-border:   rgba(255,255,255,0.065);
+            --user-bg: rgba(61, 142, 248, 0.09);
+            --user-border: rgba(61, 142, 248, 0.2);
+            --ai-bg: rgba(255, 255, 255, 0.028);
+            --ai-border: rgba(255, 255, 255, 0.065);
 
-            --radius-in:   24px;
-            --radius-lg:   18px;
-            --radius-md:   11px;
-            --radius-sm:   8px;
+            --radius-in: 24px;
+            --radius-lg: 18px;
+            --radius-md: 11px;
+            --radius-sm: 8px;
 
-            --font-ui:   'Noto Sans JP', sans-serif;
+            --font-ui: 'Noto Sans JP', sans-serif;
             --font-mono: 'DM Mono', monospace;
             --font-head: 'Instrument Serif', serif;
         }
 
-        html, body {
+        html,
+        body {
             height: 100%;
             background: var(--bg);
             color: var(--text);
@@ -76,7 +81,7 @@
             transform: translateX(-50%);
             width: 800px;
             height: 500px;
-            background: radial-gradient(ellipse at 50% 0%, rgba(61,142,248,0.06) 0%, transparent 68%);
+            background: radial-gradient(ellipse at 50% 0%, rgba(61, 142, 248, 0.06) 0%, transparent 68%);
             pointer-events: none;
             z-index: 0;
         }
@@ -116,9 +121,11 @@
         .shell::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 1px;
-            background: linear-gradient(90deg, transparent 0%, rgba(61,142,248,0.5) 50%, transparent 100%);
+            background: linear-gradient(90deg, transparent 0%, rgba(61, 142, 248, 0.5) 50%, transparent 100%);
             pointer-events: none;
         }
 
@@ -173,6 +180,33 @@
             letter-spacing: 0.03em;
         }
 
+        #clear-history {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-family: var(--font-ui);
+            font-size: 10px;
+            padding: 4px 9px;
+            cursor: pointer;
+            transition: border-color 0.15s, color 0.15s;
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+
+        #clear-history:hover {
+            border-color: rgba(220, 80, 80, 0.4);
+            color: rgba(220, 100, 100, 0.9);
+        }
+
+        #clear-history svg {
+            width: 11px;
+            height: 11px;
+        }
+
         /* ── messages ─────────────────────────────── */
         #messages {
             flex: 1;
@@ -184,22 +218,40 @@
             scroll-behavior: smooth;
         }
 
-        #messages::-webkit-scrollbar { width: 3px; }
-        #messages::-webkit-scrollbar-track { background: transparent; }
-        #messages::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
+        #messages::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        #messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #messages::-webkit-scrollbar-thumb {
+            background: var(--border-hi);
+            border-radius: 2px;
+        }
 
         .msg {
             display: flex;
             gap: 10px;
-            animation: fadeUp .24s cubic-bezier(.22,1,.36,1) both;
+            animation: fadeUp .24s cubic-bezier(.22, 1, .36, 1) both;
         }
 
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(8px); }
-            to   { opacity: 1; transform: none; }
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
         }
 
-        .msg.user { flex-direction: row-reverse; }
+        .msg.user {
+            flex-direction: row-reverse;
+        }
 
         .avatar {
             width: 26px;
@@ -217,7 +269,7 @@
 
         .msg.user .avatar {
             background: var(--blue-dim);
-            border: 1px solid rgba(61,142,248,0.25);
+            border: 1px solid rgba(61, 142, 248, 0.25);
             color: var(--blue);
         }
 
@@ -268,12 +320,27 @@
             animation: blink 1.3s ease-in-out infinite;
         }
 
-        .typing .bubble span:nth-child(2) { animation-delay: .18s; }
-        .typing .bubble span:nth-child(3) { animation-delay: .36s; }
+        .typing .bubble span:nth-child(2) {
+            animation-delay: .18s;
+        }
+
+        .typing .bubble span:nth-child(3) {
+            animation-delay: .36s;
+        }
 
         @keyframes blink {
-            0%, 80%, 100% { opacity: .15; transform: scale(.75); }
-            40%            { opacity: 1;   transform: scale(1); }
+
+            0%,
+            80%,
+            100% {
+                opacity: .15;
+                transform: scale(.75);
+            }
+
+            40% {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         /* ── empty state ──────────────────────────── */
@@ -333,7 +400,7 @@
         }
 
         .input-wrap:focus-within {
-            border-color: rgba(61,142,248,0.32);
+            border-color: rgba(61, 142, 248, 0.32);
             background: var(--surface-hi);
         }
 
@@ -351,7 +418,10 @@
             outline: none;
         }
 
-        textarea::placeholder { color: var(--text-muted); font-size: 13px; }
+        textarea::placeholder {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
 
         button#mic {
             flex-shrink: 0;
@@ -371,24 +441,38 @@
         button#mic:hover {
             background: var(--surface-hi);
             color: var(--text);
-            border-color: rgba(255,255,255,0.25);
-            box-shadow: 0 0 0 3px rgba(255,255,255,0.04);
+            border-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.04);
         }
-        button#mic svg { width: 16px; height: 16px; }
+
+        button#mic svg {
+            width: 16px;
+            height: 16px;
+        }
 
         button#mic.recording {
             color: #f87171;
-            background: rgba(248,113,113,0.12);
-            border-color: rgba(248,113,113,0.45);
+            background: rgba(248, 113, 113, 0.12);
+            border-color: rgba(248, 113, 113, 0.45);
             animation: micPulse 1.4s ease-in-out infinite;
         }
 
         @keyframes micPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(248,113,113,0); }
-            50%       { box-shadow: 0 0 0 6px rgba(248,113,113,0.15); }
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(248, 113, 113, 0);
+            }
+
+            50% {
+                box-shadow: 0 0 0 6px rgba(248, 113, 113, 0.15);
+            }
         }
 
-        button#mic:disabled { opacity: .3; cursor: not-allowed; }
+        button#mic:disabled {
+            opacity: .3;
+            cursor: not-allowed;
+        }
 
         button#send {
             flex-shrink: 0;
@@ -405,10 +489,24 @@
             align-self: center;
         }
 
-        button#send:hover  { opacity: .85; }
-        button#send:active { transform: scale(.92); }
-        button#send:disabled { opacity: .2; cursor: not-allowed; transform: none; }
-        button#send svg { width: 14px; height: 14px; }
+        button#send:hover {
+            opacity: .85;
+        }
+
+        button#send:active {
+            transform: scale(.92);
+        }
+
+        button#send:disabled {
+            opacity: .2;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button#send svg {
+            width: 14px;
+            height: 14px;
+        }
 
         /* ── think log ────────────────────────────── */
         #think-log {
@@ -421,9 +519,18 @@
             scroll-behavior: smooth;
         }
 
-        #think-log::-webkit-scrollbar { width: 2px; }
-        #think-log::-webkit-scrollbar-track { background: transparent; }
-        #think-log::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+        #think-log::-webkit-scrollbar {
+            width: 2px;
+        }
+
+        #think-log::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #think-log::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
 
         .think-empty {
             flex: 1;
@@ -435,8 +542,17 @@
             text-align: center;
         }
 
-        .think-empty svg { width: 22px; height: 22px; color: var(--text-dim); }
-        .think-empty p { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); }
+        .think-empty svg {
+            width: 22px;
+            height: 22px;
+            color: var(--text-dim);
+        }
+
+        .think-empty p {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-dim);
+        }
 
         .think-block {
             display: flex;
@@ -448,14 +564,18 @@
         .think-turn-label {
             font-family: var(--font-mono);
             font-size: 9px;
-            color: rgba(61,142,248,0.38);
+            color: rgba(61, 142, 248, 0.38);
             letter-spacing: .1em;
             text-transform: uppercase;
             padding-left: 2px;
             margin-bottom: 2px;
         }
 
-        .think-entries { display: flex; flex-direction: column; gap: 2px; }
+        .think-entries {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
 
         .think-entry {
             display: flex;
@@ -467,11 +587,21 @@
             transition: background .15s;
         }
 
-        .think-entry:hover { background: rgba(255,255,255,.018); }
+        .think-entry:hover {
+            background: rgba(255, 255, 255, .018);
+        }
 
-        .think-entry.info   { border-left-color: var(--border-hi); }
-        .think-entry.active { border-left-color: rgba(61,142,248,0.45); }
-        .think-entry.done   { border-left-color: rgba(74,222,128,0.18); }
+        .think-entry.info {
+            border-left-color: var(--border-hi);
+        }
+
+        .think-entry.active {
+            border-left-color: rgba(61, 142, 248, 0.45);
+        }
+
+        .think-entry.done {
+            border-left-color: rgba(74, 222, 128, 0.18);
+        }
 
         .think-icon {
             font-family: var(--font-mono);
@@ -483,8 +613,13 @@
             text-align: center;
         }
 
-        .think-entry.active .think-icon { color: var(--blue); }
-        .think-entry.done   .think-icon { color: rgba(74,222,128,0.45); }
+        .think-entry.active .think-icon {
+            color: var(--blue);
+        }
+
+        .think-entry.done .think-icon {
+            color: rgba(74, 222, 128, 0.45);
+        }
 
         .think-text {
             font-family: var(--font-mono);
@@ -496,8 +631,13 @@
             white-space: pre-wrap;
         }
 
-        .think-entry.active .think-text { color: #484860; }
-        .think-entry.done   .think-text { color: var(--text-dim); }
+        .think-entry.active .think-text {
+            color: #484860;
+        }
+
+        .think-entry.done .think-text {
+            color: var(--text-dim);
+        }
 
         .think-cursor {
             display: inline-block;
@@ -510,8 +650,15 @@
         }
 
         @keyframes cur {
-            0%, 100% { opacity: 1; }
-            50%       { opacity: 0; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
         }
     </style>
 </head>
@@ -524,16 +671,17 @@
             <div class="header-icon">
                 <!-- gemini-style 4-pointed sparkle -->
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2 C12 2 13.2 8.8 16 12 C13.2 15.2 12 22 12 22 C12 22 10.8 15.2 8 12 C10.8 8.8 12 2 12 2Z M2 12 C2 12 8.8 10.8 12 8 C15.2 10.8 22 12 22 12 C22 12 15.2 13.2 12 16 C8.8 13.2 2 12 2 12Z"/>
+                    <path
+                        d="M12 2 C12 2 13.2 8.8 16 12 C13.2 15.2 12 22 12 22 C12 22 10.8 15.2 8 12 C10.8 8.8 12 2 12 2Z M2 12 C2 12 8.8 10.8 12 8 C15.2 10.8 22 12 22 12 C22 12 15.2 13.2 12 16 C8.8 13.2 2 12 2 12Z" />
                 </svg>
             </div>
             <h1>考え<span class="sub">/ thinking</span></h1>
         </div>
         <div id="think-log">
             <div class="think-empty" id="think-empty">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                 </svg>
                 <p>思考なし</p>
             </div>
@@ -546,19 +694,30 @@
             <div class="header-icon">
                 <!-- gemini-style 4-pointed sparkle -->
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2 C12 2 13.2 8.8 16 12 C13.2 15.2 12 22 12 22 C12 22 10.8 15.2 8 12 C10.8 8.8 12 2 12 2Z M2 12 C2 12 8.8 10.8 12 8 C15.2 10.8 22 12 22 12 C22 12 15.2 13.2 12 16 C8.8 13.2 2 12 2 12Z"/>
+                    <path
+                        d="M12 2 C12 2 13.2 8.8 16 12 C13.2 15.2 12 22 12 22 C12 22 10.8 15.2 8 12 C10.8 8.8 12 2 12 2Z M2 12 C2 12 8.8 10.8 12 8 C15.2 10.8 22 12 22 12 C22 12 15.2 13.2 12 16 C8.8 13.2 2 12 2 12Z" />
                 </svg>
             </div>
             <h1>相棒<span class="sub">/ aibou</span></h1>
             <span class="model-tag">{{ chat_model }} · {{ chat_provider }}</span>
+            <button id="clear-history" title="履歴を削除">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6l-1 14H6L5 6" />
+                    <path d="M10 11v6M14 11v6M9 6V4h6v2" />
+                </svg>
+                履歴削除
+            </button>
         </div>
 
         <div id="messages">
             <div class="empty" id="empty">
                 <div class="empty-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
                 </div>
                 <p>{{ localization_info_start }}</p>
@@ -567,22 +726,22 @@
 
         <div class="input-bar">
             <div class="input-wrap">
-                <textarea id="input" rows="1"
-                    placeholder="{{ localization_info_please_type }}"
+                <textarea id="input" rows="1" placeholder="{{ localization_info_please_type }}"
                     autocomplete="off"></textarea>
                 <button id="mic" title="録音">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="9" y="2" width="6" height="12" rx="3"/>
-                        <path d="M5 10a7 7 0 0 0 14 0"/>
-                        <line x1="12" y1="19" x2="12" y2="22"/>
-                        <line x1="9"  y1="22" x2="15" y2="22"/>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="2" width="6" height="12" rx="3" />
+                        <path d="M5 10a7 7 0 0 0 14 0" />
+                        <line x1="12" y1="19" x2="12" y2="22" />
+                        <line x1="9" y1="22" x2="15" y2="22" />
                     </svg>
                 </button>
             </div>
             <button id="send" title="送信">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z"/>
+                    <path
+                        d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
                 </svg>
             </button>
         </div>

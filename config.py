@@ -5,6 +5,7 @@ Shared configuration and API clients.
 """
 
 import os
+import redis
 from groq import Groq
 
 API_KEY = os.environ.get("GROQ_API_KEY", "")
@@ -32,3 +33,14 @@ context = {
 }
 
 client = Groq(api_key=API_KEY)
+
+# persistent history cookie / valkey settings
+USER_COOKIE = "aibou_uid"
+# persist user-specific session cookie for 1 year
+COOKIE_MAX_AGE = 60 * 60 * 24 * 365
+# persist history for 90 days
+HISTORY_TTL = int(os.environ.get("HISTORY_TTL_SECONDS", 60 * 60 * 24 * 90))
+valkey = redis.from_url(
+    os.environ.get("SESSION_VALKEY_URL", "redis://localhost:6379/0"),
+    decode_responses=True,
+)

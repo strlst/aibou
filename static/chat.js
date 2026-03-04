@@ -5,19 +5,85 @@ const micBtn = document.getElementById('mic');
 const emptyEl = document.getElementById('empty');
 const thinkLog = document.getElementById('think-log');
 const thinkEmpty = document.getElementById('think-empty');
+const clearBtn = document.getElementById('clear-history');
 
 let turnCounter = 0;
 
 // audio state
+
 let mediaRecorder = null;
 let audioChunks = [];
 let isRecording = false;
-// track the currently playing tts audio so we can stop it
 let currentAudio = null;
+// track the currently playing tts audio so we can stop it
+
+async function loadHistory() {
+    try {
+        const res = await fetch('/history');
+        const data = await res.json();
+        if (!data.history || data.history.length === 0) return;
+
+        if (emptyEl) emptyEl.remove();
+
+        for (const msg of data.history) {
+            if (msg.role === 'user') {
+                appendMsg('user', msg.content, /* skipScroll */ true);
+            } else {
+                turnCounter++;
+                const thinkEntries = startThinkBlock(turnCounter);
+                if (msg.thinking) {
+                    const live = addLiveThinkEntry(thinkEntries);
+                    for (const ch of msg.thinking) {
+                        live.append(ch);
+                    }
+                    live.finish();
+                }
+                addThinkEntry(thinkEntries, '返信が配信されました。', 'done');
+                appendMsg('ai', msg.reply, /* skipScroll */ true);
+            }
+        }
+
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+        thinkLog.scrollTop = thinkLog.scrollHeight;
+    } catch (e) {
+        console.warn('could not load history:', e);
+    }
+}
+
+async function clearHistory() {
+    if (!confirm('会話履歴を削除しますか？')) return;
+    try {
+        await fetch('/history/clear', { method: 'POST' });
+    } catch (e) {
+        console.warn('could not clear history:', e);
+    }
+    messagesEl.innerHTML = '';
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.id = 'empty';
+    empty.innerHTML = `
+        <div class="empty-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+        </div>
+        <p>会話を始めましょう</p>`;
+    messagesEl.appendChild(empty);
+    turnCounter = 0;
+    thinkLog.innerHTML = `<div class="think-empty" id="think-empty">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        <p>思考なし</p>
+    </div>`;
+}
 
 // chat helpers
-function appendMsg(role, text) {
-    if (emptyEl) emptyEl.remove();
+function appendMsg(role, text, skipScroll = false) {
+    const existingEmpty = document.getElementById('empty');
+    if (existingEmpty) existingEmpty.remove();
 
     const wrap = document.createElement('div');
     wrap.className = `msg ${role}`;
@@ -32,9 +98,9 @@ function appendMsg(role, text) {
 
     wrap.appendChild(avatar);
     wrap.appendChild(bubble);
-
     messagesEl.appendChild(wrap);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
+
+    if (!skipScroll) messagesEl.scrollTop = messagesEl.scrollHeight;
 
     return wrap;
 }
@@ -43,16 +109,15 @@ function showTyping() {
     const wrap = document.createElement('div');
     wrap.className = 'msg ai typing';
     wrap.innerHTML = `<div class="avatar">AI</div><div class="bubble"><span></span><span></span><span></span></div>`;
-
     messagesEl.appendChild(wrap);
     messagesEl.scrollTop = messagesEl.scrollHeight;
-
     return wrap;
 }
 
 // thinking panel helpers
 function startThinkBlock(turnN) {
-    if (thinkEmpty) thinkEmpty.remove();
+    const existingThinkEmpty = document.getElementById('think-empty');
+    if (existingThinkEmpty) existingThinkEmpty.remove();
 
     const block = document.createElement('div');
     block.className = 'think-block';
@@ -328,6 +393,8 @@ async function send() {
 // finally add appropriate listeners to elements
 sendBtn.addEventListener('click', send);
 micBtn.addEventListener('click', toggleMic);
+if (clearBtn) clearBtn.addEventListener('click', clearHistory);
+
 inputEl.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
 });
@@ -335,3 +402,5 @@ inputEl.addEventListener('input', () => {
     inputEl.style.height = 'auto';
     inputEl.style.height = Math.min(inputEl.scrollHeight, 140) + 'px';
 });
+
+loadHistory();
